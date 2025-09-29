@@ -1,62 +1,57 @@
-#ejersicio 10 
-from collections import namedtuple, deque
+#Ejercicio 10
+from queue_ import Queue
+from stack import Stack
 
-Notificacion = namedtuple('Notificacion', ['hora', 'aplicacion', 'mensaje'])
-
-
-def eliminar_facebook(cola):
-    nueva_cola = deque()
-    while cola:
-        noti = cola.popleft()
-        if noti.aplicacion.lower() != 'facebook':
-            nueva_cola.append(noti)
-    return nueva_cola
+#Cada notificación es un diccionario con: hora, app y mensaje
 
 
-def mostrar_twitter_python(cola):
-    aux = deque()
+# a) eliminar todas las notificaciones de Facebook
+def eliminar_facebook(c: Queue) -> None:
+    aux = Queue()
+    while c.size() > 0:
+        notif = c.attention()
+        if notif["app"] != "Facebook":
+            aux.arrive(notif)
+    # restauracion en la cola original
+    while aux.size() > 0:
+        c.arrive(aux.attention())
+
+# b) mostrar notificaciones de Twitter con "Python" sin perder datos
+def mostrar_twitter_python(c: Queue) -> None:
+    for _ in range(c.size()):
+        notif = c.move_to_end()
+        if notif["app"] == "Twitter" and "Python" in notif["mensaje"]:
+            print(notif)
+
+# c) usar pila para contar notificaciones entre 11:43 y 15:57
+def contar_intervalo(c: Queue, inicio="11:43", fin="15:57") -> int:
+    pila = Stack()
+    contador = 0
+    for _ in range(c.size()):
+        notif = c.move_to_end()
+        if inicio <= notif["hora"] <= fin:
+            pila.push(notif)
+            contador += 1
+    return contador
+
+#Ejecucion
+if __name__ == "__main__":
+    cola = Queue()
+    cola.arrive({"hora": "10:15", "app": "Facebook", "mensaje": "Hola"})
+    cola.arrive({"hora": "12:00", "app": "Twitter", "mensaje": "Aprendiendo Python"})
+    cola.arrive({"hora": "14:30", "app": "Instagram", "mensaje": "Nueva foto"})
+    cola.arrive({"hora": "16:00", "app": "Twitter", "mensaje": "Otro tweet"})
+    cola.arrive({"hora": "13:20", "app": "Twitter", "mensaje": "Python es genial!"})
+
+    print("Cola inicial:")
+    cola.show()
+
+    print("Eliminar Facebook:")
+    eliminar_facebook(cola)
+    cola.show()
+
     print("Notificaciones de Twitter con 'Python':")
-    while cola:
-        noti = cola.popleft()
-        if noti.aplicacion.lower() == 'twitter' and 'python' in noti.mensaje.lower():
-            print(noti)
-        aux.append(noti)
-    while aux:
-        cola.append(aux.popleft())
+    mostrar_twitter_python(cola)
 
-
-def en_rango(hora, inicio, fin):
-    return inicio <= hora <= fin
-
-
-def contar_notificaciones_rango(cola):
-    pila = []
-    aux = deque()
-    inicio = "11:43"
-    fin = "15:57"
-    while cola:
-        noti = cola.popleft()
-        if en_rango(noti.hora, inicio, fin):
-            pila.append(noti)
-        aux.append(noti)
-    while aux:
-        cola.append(aux.popleft())
-    return len(pila)
-#ejemplo
-cola = deque([
-    Notificacion("11:45", "Twitter", "Cosas de python"),
-    Notificacion("12:30", "Facebook", "Nueva publicación"),
-    Notificacion("14:00", "Instagram", "Historia nueva"),
-    Notificacion("13:20", "Twitter", "Ta bueno python"),
-    Notificacion("16:10", "Facebook", "Mensaje nuevo"),
-])
-
-
-cola = eliminar_facebook(cola)
-
-
-mostrar_twitter_python(cola)
-
-
-cantidad = contar_notificaciones_rango(cola)
-print(f"\nCantidad de notificaciones entre 11:43 y 15:57: {cantidad}")
+    print("Cantidad de notificaciones entre 11:43 y 15:57:")
+    print(contar_intervalo(cola))
