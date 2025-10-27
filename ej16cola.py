@@ -12,7 +12,7 @@ g. imprima todos los documentos de la cola de impresión."""
 
 from heap import HeapMax
 
-Crear la cola de impresión (usando HeapMax para que el mayor tenga más prioridad),
+
 cola_impresion = HeapMax()
 
 a) Cargar tres documentos de empleados (prioridad 1),
